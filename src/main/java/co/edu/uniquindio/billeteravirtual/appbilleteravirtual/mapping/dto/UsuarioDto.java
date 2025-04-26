@@ -11,9 +11,6 @@ public record UsuarioDto(
         String correo,
         String numeroTelefono,
         String direccion,
-        double saldo,
-        List<Cuenta>cuentas,
-        List<Transaccion> transacciones,
-        List<Presupuesto> presupuestos
+        double saldo
 ) {
 }
