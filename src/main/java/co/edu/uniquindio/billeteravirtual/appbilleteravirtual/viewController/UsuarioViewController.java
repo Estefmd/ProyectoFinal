@@ -1,18 +1,24 @@
 package co.edu.uniquindio.billeteravirtual.appbilleteravirtual.viewController;
 
-import java.net.URL;
-import java.util.ResourceBundle;
+import co.edu.uniquindio.billeteravirtual.appbilleteravirtual.controller.UsuarioController;
+import co.edu.uniquindio.billeteravirtual.appbilleteravirtual.mapping.dto.UsuarioDto;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import java.util.ArrayList;
-import java.util.List;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.cell.PropertyValueFactory;
-import co.edu.uniquindio.billeteravirtual.appbilleteravirtual.model.Usuario;
+
+import java.net.URL;
+import java.util.Optional;
+import java.util.ResourceBundle;
 
 public class UsuarioViewController {
+
+    UsuarioController usuarioController;
+    ObservableList<UsuarioDto> listaUsuariosDto = FXCollections.observableArrayList();
+    UsuarioDto usuarioSeleccionado;
 
     @FXML
     private ResourceBundle resources;
@@ -21,182 +27,211 @@ public class UsuarioViewController {
     private URL location;
 
     @FXML
+    private Button btnAgregarUsuario;
+
+    @FXML
+    private TableView<UsuarioDto> tableViewUsuarios;
+
+    @FXML
+    private TableColumn<UsuarioDto, String> colIdUsuario;
+
+    @FXML
+    private TableColumn<UsuarioDto, String> colNombreCompleto;
+
+    @FXML
+    private TableColumn<UsuarioDto, String> colCorreo;
+
+    @FXML
+    private TableColumn<UsuarioDto, String> colNumeroTelefono;
+
+    @FXML
+    private TableColumn<UsuarioDto, String> colDireccion;
+
+    @FXML
+    private TableColumn<UsuarioDto, Double> colSaldo;
+
+    @FXML
     private TextField txtIdUsuario;
-
-    @FXML
-    private TextField txtDireccion;
-
-    @FXML
-    private TableColumn<Usuario, String> colNumeroTelefono;
-
-    @FXML
-    private TableColumn<Usuario, String> colNombreCompleto;
-
-    @FXML
-    private TableColumn<Usuario, String> colIdUsuario;
-
-    @FXML
-    private TextField txtCorreo;
-
-    @FXML
-    private TableColumn<Usuario, String> colDireccion;
-
-    @FXML
-    private TableColumn<Usuario, String> colCorreo;
 
     @FXML
     private TextField txtNombreCompleto;
 
     @FXML
-    private Button btnAgregarUsuario;
+    private TextField txtCorreo;
 
     @FXML
     private TextField txtNumeroTelefono;
 
     @FXML
-    private TableColumn<Usuario, Double> colSaldo;
+    private TextField txtDireccion;
 
     @FXML
     private TextField txtSaldo;
 
     @FXML
-    private TableView<Usuario> tableViewUsuarios;
-
-    private ObservableList<Usuario> listaUsuarios = FXCollections.observableArrayList();
+    void initialize() {
+        usuarioController = new UsuarioController();
+        initView();
+    }
 
     @FXML
     void onAgregarUsuario(ActionEvent event) {
-        String idUsuario = txtIdUsuario.getText();
-        String nombreCompleto = txtNombreCompleto.getText();
-        String correo = txtCorreo.getText();
-        String numeroTelefono = txtNumeroTelefono.getText();
-        String direccion = txtDireccion.getText();
-        try {
-            double saldo = Double.parseDouble(txtSaldo.getText());
-
-            Usuario usuarioNuevo = new Usuario(idUsuario,nombreCompleto,correo,numeroTelefono,direccion,saldo);
-            listaUsuarios.add(usuarioNuevo);
-
-            txtIdUsuario.clear();
-            txtNombreCompleto.clear();
-            txtCorreo.clear();
-            txtNumeroTelefono.clear();
-            txtDireccion.clear();
-            txtSaldo.clear();
-            tableViewUsuarios.refresh();
-
-            Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-            alerta.setTitle("Agregar Usuario");
-            alerta.setHeaderText(null);
-            alerta.setContentText("Usuario agregado exitosamente");
-            alerta.showAndWait();
-        } catch (NumberFormatException e) {
-            Alert alerta = new Alert(Alert.AlertType.ERROR);
-            alerta.setTitle("Error");
-            alerta.setHeaderText(null);
-            alerta.setContentText("El saldo no es valido, verifica el valor. Gracias!");
-            alerta.showAndWait();
-        }
+        agregarUsuario();
     }
 
     @FXML
     void onEditarUsuario(ActionEvent event) {
-        Usuario usuarioElegido = tableViewUsuarios.getSelectionModel().getSelectedItem();
-
-        if (usuarioElegido != null) {
-            try {
-                usuarioElegido.setIdUsuario(txtIdUsuario.getText());
-                usuarioElegido.setNombreCompleto(txtNombreCompleto.getText());
-                usuarioElegido.setCorreo(txtCorreo.getText());
-                usuarioElegido.setNumeroTelefono(txtNumeroTelefono.getText());
-                usuarioElegido.setDireccion(txtDireccion.getText());
-                usuarioElegido.setSaldo(Double.parseDouble(txtSaldo.getText()));
-
-                tableViewUsuarios.refresh();
-
-                Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-                alerta.setTitle("Éxito!");
-                alerta.setHeaderText(null);
-                alerta.setContentText("Usuario editado:  " + usuarioElegido );
-                alerta.showAndWait();
-            } catch (NumberFormatException e) {
-                Alert alerta = new Alert(Alert.AlertType.ERROR);
-                alerta.setTitle("Error");
-                alerta.setHeaderText(null);
-                alerta.setContentText("Formato debe ser numerico");
-                alerta.showAndWait();
-            }
-        } else {
-            Alert alerta = new Alert(Alert.AlertType.WARNING);
-            alerta.setTitle("Error");
-            alerta.setHeaderText(null);
-            alerta.setContentText("Usuario no encontrado");
-            alerta.showAndWait();
-        }
+        actualizarUsuario();
     }
 
     @FXML
     void onEliminarUsuario(ActionEvent event) {
-        Usuario usuarioElegido = tableViewUsuarios.getSelectionModel().getSelectedItem();
-        if (usuarioElegido != null) {
-            Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
-            confirmacion.setTitle("Confirmación");
-            confirmacion.setHeaderText(null);
-            confirmacion.setContentText("¿Seguro quiere eliminar este usuario?");
-            confirmacion.showAndWait().ifPresent(respuesta -> {
-                if (respuesta == ButtonType.OK) {
-                    listaUsuarios.remove(usuarioElegido);
-                    tableViewUsuarios.refresh();
-
-                    Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-                    alerta.setTitle("Eliminado!!!");
-                    alerta.setHeaderText(null);
-                    alerta.setContentText("Usuario eliminado:  " + usuarioElegido );
-                    alerta.showAndWait();
-                }
-            });
-        } else {
-            Alert alerta = new Alert(Alert.AlertType.WARNING);
-            alerta.setTitle("Atención");
-            alerta.setHeaderText(null);
-            alerta.setContentText("Selecciona el usuario que deseas eliminar");
-            alerta.showAndWait();
-        }
+        eliminarUsuario();
     }
 
     @FXML
     void onBuscarUsuario(ActionEvent event) {
+        buscarUsuario();
+    }
+
+    @FXML
+    void onLimpiarDatos(ActionEvent event) {
+        limpiarCampos();
+        mostrarMensaje("Datos limpiados", null, "Todos los campos han sido limpiados", Alert.AlertType.INFORMATION);
+    }
+
+    private void initView() {
+        initDataBinding();
+        obtenerUsuarios();
+        tableViewUsuarios.setItems(listaUsuariosDto);
+        listenerSelection();
+    }
+
+    private void initDataBinding() {
+        colIdUsuario.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().idUsuario()));
+        colNombreCompleto.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().nombreCompleto()));
+        colCorreo.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().correo()));
+        colNumeroTelefono.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().numeroTelefono()));
+        colDireccion.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().direccion()));
+        colSaldo.setCellValueFactory(new PropertyValueFactory<>("saldo"));
+    }
+
+    private void obtenerUsuarios() {
+        listaUsuariosDto.addAll(usuarioController.obtenerUsuarios());
+    }
+
+    private void listenerSelection() {
+        tableViewUsuarios.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            usuarioSeleccionado = newSelection;
+            mostrarInformacionUsuario(usuarioSeleccionado);
+        });
+    }
+
+    private void agregarUsuario() {
+        UsuarioDto usuarioDto = crearUsuarioDto();
+        if (datosValidos(usuarioDto)) {
+            if (usuarioController.agregarUsuario(usuarioDto)) {
+                listaUsuariosDto.add(usuarioDto);
+                limpiarCampos();
+                mostrarMensaje("Usuario agregado", null, "Usuario agregado exitosamente", Alert.AlertType.INFORMATION);
+            } else {
+                mostrarMensaje("Error", null, "No se pudo agregar el usuario", Alert.AlertType.ERROR);
+            }
+        } else {
+            mostrarMensaje("Campos incompletos", null, "Por favor complete todos los campos", Alert.AlertType.WARNING);
+        }
+    }
+
+    private void actualizarUsuario() {
+        if (usuarioSeleccionado != null) {
+            UsuarioDto usuarioDto = crearUsuarioDto();
+            if (usuarioController.actualizarUsuario(usuarioSeleccionado.idUsuario(), usuarioDto)) {
+                int index = listaUsuariosDto.indexOf(usuarioSeleccionado);
+                listaUsuariosDto.set(index, usuarioDto);
+                limpiarCampos();
+                mostrarMensaje("Usuario actualizado", null, "Usuario actualizado exitosamente", Alert.AlertType.INFORMATION);
+            } else {
+                mostrarMensaje("Error", null, "No se pudo actualizar el usuario", Alert.AlertType.ERROR);
+            }
+        } else {
+            mostrarMensaje("Atención", null, "Seleccione un usuario para editar", Alert.AlertType.WARNING);
+        }
+    }
+
+    private void eliminarUsuario() {
+        if (usuarioSeleccionado != null) {
+            if (mostrarMensajeConfirmacion("¿Está seguro de eliminar este usuario?")) {
+                if (usuarioController.eliminarUsuario(usuarioSeleccionado.idUsuario())) {
+                    listaUsuariosDto.remove(usuarioSeleccionado);
+                    limpiarCampos();
+                    mostrarMensaje("Usuario eliminado", null, "Usuario eliminado exitosamente", Alert.AlertType.INFORMATION);
+                } else {
+                    mostrarMensaje("Error", null, "No se pudo eliminar el usuario", Alert.AlertType.ERROR);
+                }
+            }
+        } else {
+            mostrarMensaje("Atención", null, "Seleccione un usuario para eliminar", Alert.AlertType.WARNING);
+        }
+    }
+
+    private void buscarUsuario() {
         String idUsuarioBuscado = txtIdUsuario.getText();
-        if (idUsuarioBuscado.isEmpty()) {
-            Alert alerta = new Alert(Alert.AlertType.WARNING);
-            alerta.setTitle("Atencion, campo vacío");
-            alerta.setHeaderText(null);
-            alerta.setContentText("Ingrese el ID del usuario que desea buscar");
-            alerta.showAndWait();
+        if (idUsuarioBuscado.isBlank()) {
+            mostrarMensaje("Campo vacío", null, "Ingrese el ID del usuario a buscar", Alert.AlertType.WARNING);
             return;
         }
+
         boolean encontrado = false;
-        for (Usuario usuario : listaUsuarios) {
-            if (usuario.getIdUsuario().equals(idUsuarioBuscado)) {
-                txtNombreCompleto.setText(usuario.getNombreCompleto());
-                txtCorreo.setText(usuario.getCorreo());
-                txtNumeroTelefono.setText(usuario.getNumeroTelefono());
-                txtDireccion.setText(usuario.getDireccion());
-                txtSaldo.setText(String.valueOf(usuario.getSaldo()));
+        for (UsuarioDto usuarioDto : listaUsuariosDto) {
+            if (usuarioDto.idUsuario().equals(idUsuarioBuscado)) {
+                mostrarInformacionUsuario(usuarioDto);
                 encontrado = true;
                 break;
             }
         }
+
         if (!encontrado) {
-            Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-            alerta.setTitle("Error, Usuario no encontrado");
-            alerta.setHeaderText(null);
-            alerta.setContentText("Usuario no encontrado por ese ID");
-            alerta.showAndWait();
+            mostrarMensaje("No encontrado", null, "No se encontró un usuario con ese ID", Alert.AlertType.INFORMATION);
         }
     }
-    @FXML
-    void onLimpiarDatos(ActionEvent event) {
+
+    private UsuarioDto crearUsuarioDto() {
+        double saldo = 0;
+        try {
+            saldo = Double.parseDouble(txtSaldo.getText());
+        } catch (NumberFormatException e) {
+            saldo = 0;
+        }
+        return new UsuarioDto(
+                txtIdUsuario.getText(),
+                txtNombreCompleto.getText(),
+                txtCorreo.getText(),
+                txtNumeroTelefono.getText(),
+                txtDireccion.getText(),
+                saldo
+        );
+    }
+
+    private boolean datosValidos(UsuarioDto usuarioDto) {
+        return !(usuarioDto.idUsuario().isBlank() ||
+                usuarioDto.nombreCompleto().isBlank() ||
+                usuarioDto.correo().isBlank() ||
+                usuarioDto.numeroTelefono().isBlank() ||
+                usuarioDto.direccion().isBlank());
+    }
+
+    private void mostrarInformacionUsuario(UsuarioDto usuarioSeleccionado) {
+        if (usuarioSeleccionado != null) {
+            txtIdUsuario.setText(usuarioSeleccionado.idUsuario());
+            txtNombreCompleto.setText(usuarioSeleccionado.nombreCompleto());
+            txtCorreo.setText(usuarioSeleccionado.correo());
+            txtNumeroTelefono.setText(usuarioSeleccionado.numeroTelefono());
+            txtDireccion.setText(usuarioSeleccionado.direccion());
+            txtSaldo.setText(String.valueOf(usuarioSeleccionado.saldo()));
+        }
+    }
+
+    private void limpiarCampos() {
         txtIdUsuario.clear();
         txtNombreCompleto.clear();
         txtCorreo.clear();
@@ -204,41 +239,23 @@ public class UsuarioViewController {
         txtDireccion.clear();
         txtSaldo.clear();
         tableViewUsuarios.getSelectionModel().clearSelection();
+    }
 
-        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-        alerta.setTitle("Limpiado!!!");
-        alerta.setHeaderText(null);
-        alerta.setContentText("Los datos ingresados fueron limpiados!!!");
+    private void mostrarMensaje(String titulo, String header, String contenido, Alert.AlertType tipo) {
+        Alert alerta = new Alert(tipo);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(header);
+        alerta.setContentText(contenido);
         alerta.showAndWait();
     }
 
-
-    @FXML
-    void initialize() {
-        colIdUsuario.setCellValueFactory(new PropertyValueFactory<>("idUsuario"));
-        colNombreCompleto.setCellValueFactory(new PropertyValueFactory<>("nombreCompleto"));
-        colCorreo.setCellValueFactory(new PropertyValueFactory<>("correo"));
-        colNumeroTelefono.setCellValueFactory(new PropertyValueFactory<>("numeroTelefono"));
-        colDireccion.setCellValueFactory(new PropertyValueFactory<>("direccion"));
-        colSaldo.setCellValueFactory(new PropertyValueFactory<>("saldo"));
-
-        listaUsuarios.addAll(
-                new Usuario("1097923116", "Laura Martínez", "laura@gmail.com", "3134557890", "Calle 10 #14-45", 500000),
-                new Usuario("7564321", "Carlos Pérez", "carlos@gmail.com", "3124345678", "Carrera 20 #12-34", 250000),
-                new Usuario("43666051", "Gloria N Davila", "glorian@gmail.com", "3201876543", "Av. Central #99", 1500000)
-        );
-        tableViewUsuarios.setItems(listaUsuarios);
-
-        tableViewUsuarios.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null){
-                txtIdUsuario.setText(newSelection.getIdUsuario());
-                txtNombreCompleto.setText(newSelection.getNombreCompleto());
-                txtCorreo.setText(newSelection.getCorreo());
-                txtNumeroTelefono.setText(newSelection.getNumeroTelefono());
-                txtDireccion.setText(newSelection.getDireccion());
-                txtSaldo.setText(String.valueOf(newSelection.getSaldo()));
-            }
-        });
+    private boolean mostrarMensajeConfirmacion(String mensaje) {
+        Alert alerta = new Alert(Alert.AlertType.CONFIRMATION);
+        alerta.setTitle("Confirmación");
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensaje);
+        Optional<ButtonType> action = alerta.showAndWait();
+        return action.isPresent() && action.get() == ButtonType.OK;
     }
 }
 
